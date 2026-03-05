@@ -245,67 +245,105 @@ function loadMoodHistory() {
     // TODO: fetch mood data from backend and populate table/chart
     const table = document.getElementById('moodTable');
     if (table) {
-        // example rows with better data
-        table.querySelector('tbody').innerHTML =
-            '<tr class="expand-in"><td>2026-03-05</td><td><span class="mood-happy"><i class="fas fa-smile"></i> Happy</span></td><td>3/10</td></tr>' +
-            '<tr class="expand-in"><td>2026-03-04</td><td><span class="mood-calm"><i class="fas fa-spa"></i> Calm</span></td><td>2/10</td></tr>' +
-            '<tr class="expand-in"><td>2026-03-03</td><td><span class="mood-stressed"><i class="fas fa-exclamation"></i> Stressed</span></td><td>7/10</td></tr>' +
-            '<tr class="expand-in"><td>2026-03-02</td><td><span class="mood-sad"><i class="fas fa-frown"></i> Sad</span></td><td>5/10</td></tr>' +
-            '<tr class="expand-in"><td>2026-03-01</td><td><span class="mood-calm"><i class="fas fa-spa"></i> Calm</span></td><td>3/10</td></tr>';
+        // add sample mood history rows
+        const rows = [
+            { date: '2026-03-05', mood: 'Happy', stress: '3' },
+            { date: '2026-03-04', mood: 'Calm', stress: '2' },
+            { date: '2026-03-03', mood: 'Stressed', stress: '7' },
+            { date: '2026-03-02', mood: 'Sad', stress: '5' },
+            { date: '2026-03-01', mood: 'Calm', stress: '3' }
+        ];
+        let html = '';
+        rows.forEach(row => {
+            const moodClass = 'mood-' + row.mood.toLowerCase();
+            const icon = row.mood === 'Happy' ? 'fa-smile' : row.mood === 'Calm' ? 'fa-spa' : row.mood === 'Stressed' ? 'fa-exclamation' : 'fa-frown';
+            html += `<tr><td>${row.date}</td><td><span class="${moodClass}"><i class="fas ${icon}"></i> ${row.mood}</span></td><td>${row.stress}/10</td></tr>`;
+        });
+        table.querySelector('tbody').innerHTML = html;
     }
+    
+    // Initialize chart
     const ctx = document.getElementById('moodChart');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Mar 1', 'Mar 2', 'Mar 3', 'Mar 4', 'Mar 5'],
-                datasets: [{
-                    label: 'Stress Level',
-                    data: [3, 5, 7, 2, 3],
-                    borderColor: '#4fc3f7',
-                    backgroundColor: 'rgba(79,195,247,0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 5,
-                    pointBackgroundColor: '#81c784',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        labels: { font: { size: 14 }, color: '#2c3e50' }
-                    }
+    if (ctx && typeof Chart !== 'undefined') {
+        setTimeout(() => {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mar 1', 'Mar 2', 'Mar 3', 'Mar 4', 'Mar 5'],
+                    datasets: [{
+                        label: 'Stress Level (0-10)',
+                        data: [3, 5, 7, 2, 3],
+                        borderColor: '#4fc3f7',
+                        backgroundColor: 'rgba(79,195,247,0.15)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#81c784',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 8
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 10,
-                        ticks: { color: '#2c3e50' },
-                        grid: { color: 'rgba(0,0,0,0.1)' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { 
+                                font: { size: 14, weight: 'bold' },
+                                color: '#2c3e50',
+                                padding: 15
+                            }
+                        }
                     },
-                    x: {
-                        ticks: { color: '#2c3e50' },
-                        grid: { color: 'rgba(0,0,0,0.1)' }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: { color: '#2c3e50', font: { size: 12 } },
+                            grid: { color: 'rgba(0,0,0,0.1)', drawBorder: true }
+                        },
+                        x: {
+                            ticks: { color: '#2c3e50', font: { size: 12 } },
+                            grid: { color: 'rgba(0,0,0,0.1)' }
+                        }
                     }
                 }
-            }
-        });
+            });
+        }, 200);
     }
 }
 
 function loadActivityHistory() {
     const table = document.getElementById('activityTable');
     if (table) {
-        table.querySelector('tbody').innerHTML =
-            '<tr class="expand-in"><td>2026-03-05</td><td><i class="fas fa-dumbbell activity-exercise"></i> Exercise, <i class="fas fa-book activity-reading"></i> Reading</td></tr>' +
-            '<tr class="expand-in"><td>2026-03-04</td><td><i class="fas fa-spa activity-meditation"></i> Meditation, <i class="fas fa-music activity-music"></i> Music</td></tr>' +
-            '<tr class="expand-in"><td>2026-03-03</td><td><i class="fas fa-users activity-friends"></i> Friends</td></tr>' +
-            '<tr class="expand-in"><td>2026-03-02</td><td><i class="fas fa-pen activity-journaling"></i> Journaling</td></tr>' +
-            '<tr class="expand-in"><td>2026-03-01</td><td><i class="fas fa-dumbbell activity-exercise"></i> Exercise</td></tr>';
+        // add sample activity history rows
+        const rows = [
+            { date: '2026-03-05', activities: ['Exercise', 'Reading'] },
+            { date: '2026-03-04', activities: ['Meditation', 'Music'] },
+            { date: '2026-03-03', activities: ['Friends'] },
+            { date: '2026-03-02', activities: ['Journaling'] },
+            { date: '2026-03-01', activities: ['Exercise'] }
+        ];
+        let html = '';
+        rows.forEach(row => {
+            const icons = {
+                'Exercise': 'fa-dumbbell activity-exercise',
+                'Reading': 'fa-book activity-reading',
+                'Meditation': 'fa-spa activity-meditation',
+                'Music': 'fa-music activity-music',
+                'Friends': 'fa-users activity-friends',
+                'Journaling': 'fa-pen activity-journaling'
+            };
+            const activities = row.activities.map(a => {
+                const icon = icons[a] || 'fa-star';
+                return `<i class="fas ${icon}"></i> ${a}`;
+            }).join(', ');
+            html += `<tr><td>${row.date}</td><td>${activities}</td></tr>`;
+        });
+        table.querySelector('tbody').innerHTML = html;
     }
 }
 
