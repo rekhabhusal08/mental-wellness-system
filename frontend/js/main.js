@@ -242,10 +242,9 @@ function setCurrentDate() {
 
 // Placeholder functions for history tables and charts
 function loadMoodHistory() {
-    // TODO: fetch mood data from backend and populate table/chart
+    // Load table data
     const table = document.getElementById('moodTable');
     if (table) {
-        // add sample mood history rows
         const rows = [
             { date: '2026-03-05', mood: 'Happy', stress: 3 },
             { date: '2026-03-04', mood: 'Calm', stress: 2 },
@@ -262,70 +261,102 @@ function loadMoodHistory() {
         table.querySelector('tbody').innerHTML = html;
     }
     
-    // Initialize chart
-    const chartCanvas = document.getElementById('moodChart');
-    if (chartCanvas && typeof Chart !== 'undefined') {
-        // destroy existing chart if it exists to prevent errors
-        if (window.moodChartInstance) {
+    // Initialize chart - ensure library is loaded first
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not loaded yet, retrying...');
+        setTimeout(loadMoodHistory, 500);
+        return;
+    }
+    
+    const chartElement = document.getElementById('moodChart');
+    if (!chartElement) {
+        console.warn('moodChart canvas not found');
+        return;
+    }
+    
+    // Destroy previous chart instance if exists
+    if (window.moodChartInstance) {
+        try {
             window.moodChartInstance.destroy();
+        } catch (e) {
+            console.log('Previous chart instance already destroyed');
         }
-        
-        const ctx = chartCanvas.getContext('2d');
-        window.moodChartInstance = new Chart(ctx, {
+    }
+    
+    // Create new chart
+    try {
+        window.moodChartInstance = new Chart(chartElement, {
             type: 'line',
             data: {
                 labels: ['Mar 1', 'Mar 2', 'Mar 3', 'Mar 4', 'Mar 5'],
                 datasets: [{
-                    label: 'Stress Level',
+                    label: 'Stress Level (0-10)',
                     data: [3, 5, 7, 2, 3],
                     borderColor: '#4fc3f7',
-                    backgroundColor: 'rgba(79,195,247,0.15)',
+                    backgroundColor: 'rgba(79,195,247,0.2)',
                     borderWidth: 3,
                     tension: 0.4,
                     fill: true,
-                    pointRadius: 7,
+                    pointRadius: 6,
                     pointBackgroundColor: '#81c784',
-                    pointBorderColor: '#fff',
+                    pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointHoverRadius: 9
+                    pointHoverRadius: 8
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: true,
-                        labels: { 
+                        position: 'top',
+                        labels: {
                             font: { size: 13, weight: '600' },
                             color: '#2c3e50',
                             padding: 15,
-                            usePointStyle: true
+                            usePointStyle: true,
+                            boxWidth: 12
                         }
+                    },
+                    title: {
+                        display: false
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         max: 10,
-                        ticks: { color: '#2c3e50', font: { size: 12 }, stepSize: 2 },
-                        grid: { color: 'rgba(0,0,0,0.08)', drawBorder: true },
-                        title: { display: true, text: 'Stress Level' }
+                        ticks: {
+                            color: '#2c3e50',
+                            font: { size: 11 },
+                            stepSize: 2
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)',
+                            drawBorder: true
+                        }
                     },
                     x: {
-                        ticks: { color: '#2c3e50', font: { size: 12 } },
-                        grid: { color: 'rgba(0,0,0,0.05)' }
+                        ticks: {
+                            color: '#2c3e50',
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
                     }
                 }
             }
         });
+    } catch (error) {
+        console.error('Error creating mood chart:', error);
     }
 }
 
 function loadActivityHistory() {
     const table = document.getElementById('activityTable');
     if (table) {
-        // add sample activity history rows
         const rows = [
             { date: '2026-03-05', activities: ['Exercise', 'Reading'] },
             { date: '2026-03-04', activities: ['Meditation', 'Music'] },
@@ -353,28 +384,35 @@ function loadActivityHistory() {
     }
     
     // Initialize activity chart
-    const chartCanvas = document.getElementById('activityChart');
-    if (chartCanvas && typeof Chart !== 'undefined') {
-        // destroy existing chart if it exists
-        if (window.activityChartInstance) {
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not loaded yet');
+        setTimeout(loadActivityHistory, 500);
+        return;
+    }
+    
+    const chartElement = document.getElementById('activityChart');
+    if (!chartElement) {
+        console.warn('activityChart canvas not found');
+        return;
+    }
+    
+    if (window.activityChartInstance) {
+        try {
             window.activityChartInstance.destroy();
+        } catch (e) {
+            console.log('Previous chart instance already destroyed');
         }
-        
-        const ctx = chartCanvas.getContext('2d');
-        window.activityChartInstance = new Chart(ctx, {
+    }
+    
+    try {
+        window.activityChartInstance = new Chart(chartElement, {
             type: 'bar',
             data: {
                 labels: ['Mar 1', 'Mar 2', 'Mar 3', 'Mar 4', 'Mar 5'],
                 datasets: [{
                     label: 'Activities Completed',
                     data: [1, 1, 1, 2, 2],
-                    backgroundColor: [
-                        '#81c784',
-                        '#81c784',
-                        '#81c784',
-                        '#4fc3f7',
-                        '#4fc3f7'
-                    ],
+                    backgroundColor: ['#81c784', '#81c784', '#81c784', '#4fc3f7', '#4fc3f7'],
                     borderColor: '#2c3e50',
                     borderWidth: 2,
                     borderRadius: 8
@@ -383,30 +421,37 @@ function loadActivityHistory() {
             options: {
                 indexAxis: 'y',
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: true,
+                        position: 'top',
                         labels: {
                             font: { size: 13, weight: '600' },
                             color: '#2c3e50',
-                            padding: 15
+                            padding: 15,
+                            usePointStyle: true
                         }
+                    },
+                    title: {
+                        display: false
                     }
                 },
                 scales: {
                     x: {
                         beginAtZero: true,
-                        ticks: { color: '#2c3e50', font: { size: 12 } },
-                        grid: { color: 'rgba(0,0,0,0.08)' }
+                        ticks: { color: '#2c3e50', font: { size: 11 } },
+                        grid: { color: 'rgba(0,0,0,0.1)' }
                     },
                     y: {
-                        ticks: { color: '#2c3e50', font: { size: 12 } },
+                        ticks: { color: '#2c3e50', font: { size: 11 } },
                         grid: { color: 'rgba(0,0,0,0.05)' }
                     }
                 }
             }
         });
+    } catch (error) {
+        console.error('Error creating activity chart:', error);
     }
 }
 
